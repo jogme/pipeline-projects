@@ -27,31 +27,8 @@ def bkk_trip():
     and loads it in a MongoDB database
     """
     @task()
-    def extract():
-        url_trip_upd = "{}/TripUpdates.pb?key={}".format(base_link, key)
-
-        feed_tru = gtfs_realtime_pb2.FeedMessage()
-
-        r_tru = requests.get(url_trip_upd)
-        if r_tru.status_code != 200:
-            raise AirflowException('could not get alerts data')
-
-        feed_tru.ParseFromString(r_tru.content)
-        return feed_tru
-
-    @task()
     def get_current_alerts():
-        # fetch from source for now
         # TODO fetch from db and ensure it gets pulled first
-        #url_alerts = "{}/Alerts.pb?key={}".format(base_link, key)
-        #feed_ale = gtfs_realtime_pb2.FeedMessage()
-
-        #r_ale = requests.get(url_alerts)
-
-        #if r_ale.status_code != 200:
-        #    raise AirflowException('could not get alerts data')
-        #return feed_ale.ParseFromString(r_ale.content)
-        # this returns alerts with NO_SERVICE effect
         server = "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000"
         db_name = 'bkk_data'
         col_alerts_cur = 'alert_active'
@@ -75,12 +52,6 @@ def bkk_trip():
     def transform(input, alerts):
         # there are routes which are NO_SERVICE; they come in the alert feed
         # they need to be filtered out, as they are ghosts in feed_tru
-        #no_service_routes = {}
-        # effect 1 is NO_SERVICE
-        #for x in [x for x in alerts.entity if x.alert.effect == 1]:
-        #    r_id = list(set([ie.route_id for ie in x.alert.informed_entity]))
-        #    no_service_routes.update({r:[x.alert.active_period[0].start, x.alert.active_period[0].end] for r in r_id})
-
         #filter out trip_update feed from cancelled and not yet departed routes
         #no_service_routes.keys() and
         url_trip_upd = "{}/TripUpdates.pb?key={}".format(base_link, key)
@@ -177,7 +148,6 @@ def bkk_trip():
         db[col_vehicle].insert_many(vhc_new)
         client.close()
 
-    #data = extract()
     alerts = get_current_alerts()
     processed_data = transform(0, alerts)
     load(processed_data)

@@ -37,7 +37,6 @@ col_alerts_arch = 'alert_archive'
 #col_weather = 'weather_data'
 # static data below
 #col_stops = 'stops'
-#col_routes = 'routes'
 
 try:
     client = MongoClient(server)
