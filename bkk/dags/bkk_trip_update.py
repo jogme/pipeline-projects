@@ -25,6 +25,7 @@ def bkk_trip():
     ### Pipeline for BKK trip update
     This loads the API of https://go.bkk.hu/api/query/v1/ws/gtfs-rt/full/TripUpdates.pb
     and loads it in a MongoDB database
+    For more documentation on the GTFS see: https://github.com/google/transit/blob/master/gtfs-realtime/proto/gtfs-realtime.proto
     """
     @task()
     def get_current_alerts():
